@@ -1,22 +1,7 @@
 name: Test Linux
 
 on:
-  pull_request:
-    paths-ignore:
-      - README.md
-      - .github/**
-      - '!.github/workflows/test-linux.yml'
-    types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches:
-      - main
-      - canary
-      - v[0-9]+.x-staging
-      - v[0-9]+.x
-    paths-ignore:
-      - README.md
-      - .github/**
-      - '!.github/workflows/test-linux.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -46,4 +31,7 @@ jobs:
       - name: Build
         run: make build-ci -j4 V=1 CONFIG_FLAGS="--error-on-warn"
       - name: Test
-        run: make run-ci -j4 V=1 TEST_CI_ARGS="-p actions --node-args='--test-reporter=spec' --node-args='--test-reporter-destination=stdout' --measure-flakiness 9"
+        uses: koenhagen/measure-energy-action@v0.30
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: make run-ci -j4 V=1 TEST_CI_ARGS="-p actions --node-args='--test-reporter=spec' --node-args='--test-reporter-destination=stdout' --measure-flakiness 9"
